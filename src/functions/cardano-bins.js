@@ -7,7 +7,7 @@ import { promisify } from 'util';
 const exec = promisify(execCallback);
 
 const CARDANO_NODE_VERSION = "8.7.3"
-const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node/releases/tag/';
+const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node';
 
 const getPlatformReleaseUrl = async () => {
     const platform = process.platform;

@@ -381,7 +381,7 @@ const external_util_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.me
 const exec = (0,external_util_namespaceObject.promisify)(external_child_process_namespaceObject.exec);
 
 const CARDANO_NODE_VERSION = "8.7.3"
-const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node/releases/tag/';
+const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node';
 
 const getPlatformReleaseUrl = async () => {
     const platform = process.platform;
