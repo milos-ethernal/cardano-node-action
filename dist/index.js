@@ -388,7 +388,7 @@ const getPlatformReleaseUrl = async () => {
     const tag = CARDANO_NODE_VERSION;
     let file_name = '';
     if (platform === 'linux') {
-        file_name = `cardano-node-${tag}-linux64.tar.gz`;
+        file_name = `cardano-node-${tag}-linux.tar.gz`;
     }
     else if (platform === 'darwin') {
         file_name = `cardano-node-${tag}-macos.tar.gz`;
