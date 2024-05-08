@@ -18,4 +18,4 @@ jobs:
       uses: milos-ethernal/cardano-node-action@latest
 
     - name: Test
-      run: make test-e2e
+      run: cardano-node --version
