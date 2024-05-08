@@ -6,35 +6,28 @@ import { promisify } from 'util';
 
 const exec = promisify(execCallback);
 
-const BINS_BASE_URL = 'https://github.com/cardano-foundation/cardano-wallet';
-
-const get_latest_release_tag = async () => {
-    const response = await fetch(`${BINS_BASE_URL}/releases/latest`, { method: 'GET',
-        headers: { 'Accept': 'application/json' }
-    });
-    const data = await response.json();
-    return data.tag_name;
-};
+const CARDANO_NODE_VERSION = "8.7.3"
+const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node/releases/tag/';
 
 const getPlatformReleaseUrl = async () => {
     const platform = process.platform;
-    const tag = await get_latest_release_tag();
+    const tag = CARDANO_NODE_VERSION;
     let file_name = '';
     if (platform === 'linux') {
-        file_name = `cardano-wallet-${tag}-linux64.tar.gz`;
+        file_name = `cardano-node-${tag}-linux64.tar.gz`;
     }
     else if (platform === 'darwin') {
-        file_name = `cardano-wallet-${tag}-macos-intel.tar.gz`;
+        file_name = `cardano-node-${tag}-macos.tar.gz`;
     }
     else if (platform === 'win32') {
-        file_name = `cardano-wallet-${tag}-win64.zip`;
+        file_name = `cardano-node-${tag}-win64.zip`;
     }
     else {
         throw new Error(`Platform ${platform} not supported`);
     }
     return `${BINS_BASE_URL}/releases/download/${tag}/${file_name}`;
 };
-export const downloadLatestRelease = async () => {
+export const downloadRelease = async () => {
     const url = await getPlatformReleaseUrl();
     const response = await fetch(url);
     const buffer = await response.arrayBuffer();
@@ -48,7 +41,7 @@ export const downloadLatestRelease = async () => {
     const filePath = path.join(dir, file_name);
     writeFileSync(filePath, Buffer.from(buffer));
 };
-export const unpackLatestRelease = async () => {
+export const unpackRelease = async () => {
     const url = await getPlatformReleaseUrl();
     const urlObj = new URL(url);
     const file_name = urlObj.pathname.split('/').pop();
@@ -60,7 +53,7 @@ export const unpackLatestRelease = async () => {
     try {
         if (['linux', 'darwin', 'win32'].includes(process.platform)) {
             await exec(`tar -xf "${filePath}" -C "${dir}"`);
-            
+
             // Assuming the tar archive contains a single top-level directory
             const files = readdirSync(dir);
             const extractedDir = files.find(file => statSync(path.join(dir, file)).isDirectory());

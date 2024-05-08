@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
-import { downloadLatestRelease, unpackLatestRelease, moveToRunnerBin } from './functions/cardano-bins.js';
+import { downloadRelease, unpackRelease, moveToRunnerBin } from './functions/cardano-bins.js';
 
 dotenv.config();
-await downloadLatestRelease();
-await unpackLatestRelease();
+await downloadRelease();
+await unpackRelease();
 await moveToRunnerBin();
 //await appendToGitHubPath(fullPath);
