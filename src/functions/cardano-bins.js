@@ -3,6 +3,7 @@ import { URL } from 'url';
 import * as path from 'path';
 import { exec as execCallback } from 'child_process';
 import { promisify } from 'util';
+import { rimraf } from 'rimraf';
 
 const exec = promisify(execCallback);
 
@@ -76,6 +77,7 @@ export const moveToRunnerBin = async () => {
     console.log(`GITHUB_WORKSPACE: ${path}`);
     try {
         await exec(`sudo mv ./bins/* ${path}`);
+        rimraf.sync("./bins");
     }
     catch (error) {
         console.error('Error occurred:', error);
