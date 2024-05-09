@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/Qafana/cardano-tools-action#readme",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "rimraf": "^5.0.5"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.1"
