@@ -11,8 +11,9 @@ const CARDANO_NODE_VERSION = "8.7.3"
 const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node';
 
 const getPlatformReleaseUrl = async () => {
+    const core = require('@actions/core');
+    const tag = core.getInput('tag');
     const platform = process.platform;
-    const tag = CARDANO_NODE_VERSION;
     let file_name = '';
     if (platform === 'linux') {
         file_name = `cardano-node-${tag}-linux.tar.gz`;

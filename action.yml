@@ -3,6 +3,11 @@ description: 'Add cardano-tools to your workflow (cardano-cli, cardano-node, car
 branding:
     icon: "bell"
     color: "green"
+inputs:
+  tag:
+    descripton: 'version/tag to install from the cardano-node repository'
+    required: false
+    default: '8.7.3'
 runs:
   using: 'node20'
   main: 'dist/index.js'
