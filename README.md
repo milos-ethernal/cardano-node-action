@@ -13,7 +13,11 @@ To use this action in your workflow just add the following lines to your workflo
 ```yaml
 - name: Install Cardano tools
   uses: milos-ethernal/cardano-node-action@{sha}
+  with:
+    tag: '10.1.4'
 ```
+
+Tag is optional parameter, if not defined action will use cardano-node release version 8.7.3.
 
 After this step bech32, cardano-cli and cardano-node will be available in your workflow.
 You can use them in your scripts or directly execute them in your workflow steps.
