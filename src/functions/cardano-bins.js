@@ -4,15 +4,15 @@ import * as path from 'path';
 import { exec as execCallback } from 'child_process';
 import { promisify } from 'util';
 import { rimraf } from 'rimraf';
+import * as core from '@actions/core';
 
 const exec = promisify(execCallback);
 
-const CARDANO_NODE_VERSION = "8.7.3"
 const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node';
 
-const getPlatformReleaseUrl = async () => {
+const getPlatformReleaseUrl = async () => {   
+    const tag = core.getInput('tag');
     const platform = process.platform;
-    const tag = CARDANO_NODE_VERSION;
     let file_name = '';
     if (platform === 'linux') {
         file_name = `cardano-node-${tag}-linux.tar.gz`;
