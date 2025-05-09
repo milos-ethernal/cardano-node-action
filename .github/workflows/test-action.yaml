@@ -16,7 +16,7 @@ jobs:
         go-version: '1.20'
     
     - name: Install Cardano node
-      uses: milos-ethernal/cardano-node-action
+      uses: milos-ethernal/cardano-node-action@c08388ca19cbb6ff5768c0a22bebef6c8cdf53bf
       with:
         tag: '10.1.4'
 
