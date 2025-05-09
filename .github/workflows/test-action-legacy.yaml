@@ -1,4 +1,4 @@
-name: Test
+name: Legacy test
 
 on: 
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
         go-version: '1.20'
     
     - name: Install Cardano node
-      uses: milos-ethernal/cardano-node-action@c08388ca19cbb6ff5768c0a22bebef6c8cdf53bf
+      uses: milos-ethernal/cardano-node-action@da33943cb2cb0e56358bd5f7c12773423d02738e
 
     - name: Test
       run: cardano-node --version
