@@ -36552,7 +36552,8 @@ const downloadRelease = async () => {
     if (!file_name) {
         throw new Error('Unable to determine the file name from the URL');
     }
-    const dir = './bins';
+    const prefix = core.getInput('prefix');
+    const dir = './bins/' + prefix;
     (0,external_fs_.mkdirSync)(dir, { recursive: true });
     const filePath = external_path_.join(dir, file_name);
     (0,external_fs_.writeFileSync)(filePath, Buffer.from(buffer));
@@ -36564,7 +36565,8 @@ const unpackRelease = async () => {
     if (!file_name) {
         throw new Error('Unable to determine the file name from the URL');
     }
-    const dir = './bins';
+    const prefix = core.getInput('prefix');
+    const dir = './bins/' + prefix;
     const filePath = external_path_.join(dir, file_name);
     try {
         if (['linux', 'darwin', 'win32'].includes(process.platform)) {
@@ -36592,12 +36594,16 @@ const moveToRunnerBin = async () => {
     console.log(`GITHUB_WORKSPACE: ${path}`);
     try {
         const newPrefix = core.getInput('prefix');
+        const dir = './bins/' + newPrefix;
         if (newPrefix != 'cardano') {
             // Get all files with "cardano" in the name and rename them
-            await exec(`find ./bins -name "*cardano*" -type f -exec bash -c 'sudo mv "$1" "${2}/$(basename "$1" | sed "s/cardano/${3}/g")"' _ {} ${path} ${newPrefix} \\;`);
+            await exec(`find ${dir} -name "*cardano*" -type f -exec bash -c '
+                        newname=$(echo "$1" | sed "s/cardano/${newPrefix}/g")
+                        sudo mv "$1" "$newname"
+                    ' _ {} \\;`);
         } 
-        await exec(`sudo mv ./bins/* ${path}`);
-        rimraf.sync("./bins");
+        await exec(`sudo mv ${dir}/* ${path}`);
+        rimraf.sync(dir);
     }
     catch (error) {
         console.error('Error occurred:', error);

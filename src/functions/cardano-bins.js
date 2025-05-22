@@ -82,7 +82,10 @@ export const moveToRunnerBin = async () => {
         const dir = './bins/' + newPrefix;
         if (newPrefix != 'cardano') {
             // Get all files with "cardano" in the name and rename them
-            await exec(`find ${dir} -name "*cardano*" -type f -exec bash -c 'sudo mv "$1" "${2}/$(basename "$1" | sed "s/cardano/${3}/g")"' _ {} ${path} ${newPrefix} \\;`);
+            await exec(`find ${dir} -name "*cardano*" -type f -exec bash -c '
+                        newname=$(echo "$1" | sed "s/cardano/${newPrefix}/g")
+                        sudo mv "$1" "$newname"
+                    ' _ {} \\;`);
         } 
         await exec(`sudo mv ${dir}/* ${path}`);
         rimraf.sync(dir);
