@@ -26,7 +26,7 @@ jobs:
     - name: Install Cardano node with new prefix
       uses: milos-ethernal/cardano-node-action@89c368c8f6a023bcc5ff9cfcc9288a1c50d18a0a
       with:
-        tag: '10.1.4'
+        tag: '8.7.3'
         prefix: 'prime'
 
     - name: Test
