@@ -1,4 +1,4 @@
-import { readdirSync, statSync, rmdirSync, mkdirSync, writeFileSync } from 'fs';
+import { readdirSync, statSync, rmdirSync, rmSync, mkdirSync, writeFileSync } from 'fs';
 import { URL } from 'url';
 import * as path from 'path';
 import { exec as execCallback } from 'child_process';
@@ -64,6 +64,7 @@ export const unpackRelease = async () => {
             if (extractedDir) {
                 await exec(`mv "${path.join(dir, extractedDir)}"/* "${dir}"`);
                 rmdirSync(path.join(dir, extractedDir));
+                rmSync(filePath);
             }
         } else {
             throw new Error(`Platform ${process.platform} not supported`);
@@ -81,12 +82,9 @@ export const moveToRunnerBin = async () => {
         const newPrefix = core.getInput('prefix');
         const dir = './bins/' + newPrefix;
         if (newPrefix != 'cardano') {
-            // Get all files with "cardano" in the name and rename them
-            await exec(`find ${dir} -name "*cardano*" -type f -exec bash -c '
-                        newname=$(echo "$1" | sed "s/cardano/${newPrefix}/g")
-                        sudo mv "$1" "$newname"
-                    ' _ {} \\;`);
-        } 
+            await exec(`bash -c 'cd ${dir} && for file in *cardano*; do [ -f "$file" ] && mv "$file" "\${file//cardano/${newPrefix}}"; done'`);
+        }
+
         await exec(`sudo mv ${dir}/* ${path}`);
         rimraf.sync(dir);
     }
