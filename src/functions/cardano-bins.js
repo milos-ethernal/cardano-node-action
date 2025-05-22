@@ -76,6 +76,11 @@ export const moveToRunnerBin = async () => {
     const path = "/bin";
     console.log(`GITHUB_WORKSPACE: ${path}`);
     try {
+        const newPrefix = core.getInput('prefix');
+        if (newPrefix != 'cardano') {
+            // Get all files with "cardano" in the name and rename them
+            await exec(`find ./bins -name "*cardano*" -type f -exec bash -c 'sudo mv "$1" "${2}/$(basename "$1" | sed "s/cardano/${3}/g")"' _ {} ${path} ${newPrefix} \\;`);
+        } 
         await exec(`sudo mv ./bins/* ${path}`);
         rimraf.sync("./bins");
     }
