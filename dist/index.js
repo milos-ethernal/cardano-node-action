@@ -36552,7 +36552,8 @@ const downloadRelease = async () => {
     if (!file_name) {
         throw new Error('Unable to determine the file name from the URL');
     }
-    const dir = './bins';
+    const prefix = core.getInput('prefix');
+    const dir = './bins/' + prefix;
     (0,external_fs_.mkdirSync)(dir, { recursive: true });
     const filePath = external_path_.join(dir, file_name);
     (0,external_fs_.writeFileSync)(filePath, Buffer.from(buffer));
@@ -36564,7 +36565,8 @@ const unpackRelease = async () => {
     if (!file_name) {
         throw new Error('Unable to determine the file name from the URL');
     }
-    const dir = './bins';
+    const prefix = core.getInput('prefix');
+    const dir = './bins/' + prefix;
     const filePath = external_path_.join(dir, file_name);
     try {
         if (['linux', 'darwin', 'win32'].includes(process.platform)) {
@@ -36577,6 +36579,7 @@ const unpackRelease = async () => {
             if (extractedDir) {
                 await exec(`mv "${external_path_.join(dir, extractedDir)}"/* "${dir}"`);
                 (0,external_fs_.rmdirSync)(external_path_.join(dir, extractedDir));
+                (0,external_fs_.rmSync)(filePath);
             }
         } else {
             throw new Error(`Platform ${process.platform} not supported`);
@@ -36591,8 +36594,14 @@ const moveToRunnerBin = async () => {
     const path = "/bin";
     console.log(`GITHUB_WORKSPACE: ${path}`);
     try {
-        await exec(`sudo mv ./bins/* ${path}`);
-        rimraf.sync("./bins");
+        const newPrefix = core.getInput('prefix');
+        const dir = './bins/' + newPrefix;
+        if (newPrefix != 'cardano') {
+            await exec(`bash -c 'cd ${dir} && for file in *cardano*; do [ -f "$file" ] && mv "$file" "\${file//cardano/${newPrefix}}"; done'`);
+        }
+
+        await exec(`sudo mv ${dir}/* ${path}`);
+        rimraf.sync(dir);
     }
     catch (error) {
         console.error('Error occurred:', error);

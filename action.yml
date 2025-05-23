@@ -8,6 +8,10 @@ inputs:
     descripton: 'version/tag to install from the cardano-node repository'
     required: false
     default: '8.7.3'
+  prefix:
+    description: 'prefix to rename cardano bins'
+    required: false
+    default: 'cardano'
 runs:
   using: 'node20'
   main: 'dist/index.js'

@@ -1,4 +1,4 @@
-import { readdirSync, statSync, rmdirSync, mkdirSync, writeFileSync } from 'fs';
+import { readdirSync, statSync, rmdirSync, rmSync, mkdirSync, writeFileSync } from 'fs';
 import { URL } from 'url';
 import * as path from 'path';
 import { exec as execCallback } from 'child_process';
@@ -37,7 +37,8 @@ export const downloadRelease = async () => {
     if (!file_name) {
         throw new Error('Unable to determine the file name from the URL');
     }
-    const dir = './bins';
+    const prefix = core.getInput('prefix');
+    const dir = './bins/' + prefix;
     mkdirSync(dir, { recursive: true });
     const filePath = path.join(dir, file_name);
     writeFileSync(filePath, Buffer.from(buffer));
@@ -49,7 +50,8 @@ export const unpackRelease = async () => {
     if (!file_name) {
         throw new Error('Unable to determine the file name from the URL');
     }
-    const dir = './bins';
+    const prefix = core.getInput('prefix');
+    const dir = './bins/' + prefix;
     const filePath = path.join(dir, file_name);
     try {
         if (['linux', 'darwin', 'win32'].includes(process.platform)) {
@@ -62,6 +64,7 @@ export const unpackRelease = async () => {
             if (extractedDir) {
                 await exec(`mv "${path.join(dir, extractedDir)}"/* "${dir}"`);
                 rmdirSync(path.join(dir, extractedDir));
+                rmSync(filePath);
             }
         } else {
             throw new Error(`Platform ${process.platform} not supported`);
@@ -76,8 +79,14 @@ export const moveToRunnerBin = async () => {
     const path = "/bin";
     console.log(`GITHUB_WORKSPACE: ${path}`);
     try {
-        await exec(`sudo mv ./bins/* ${path}`);
-        rimraf.sync("./bins");
+        const newPrefix = core.getInput('prefix');
+        const dir = './bins/' + newPrefix;
+        if (newPrefix != 'cardano') {
+            await exec(`bash -c 'cd ${dir} && for file in *cardano*; do [ -f "$file" ] && mv "$file" "\${file//cardano/${newPrefix}}"; done'`);
+        }
+
+        await exec(`sudo mv ${dir}/* ${path}`);
+        rimraf.sync(dir);
     }
     catch (error) {
         console.error('Error occurred:', error);
