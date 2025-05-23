@@ -15,9 +15,11 @@ To use this action in your workflow just add the following lines to your workflo
   uses: milos-ethernal/cardano-node-action@{sha}
   with:
     tag: '10.1.4'
+    prefix: 'prime'
 ```
 
 Tag is optional parameter, if not defined action will use cardano-node release version 8.7.3.
+Prefix is optional parameter used in case that you need multiple binaries installed. It will rename installed version so you can use it as in [test action](.github/workflows/test-action.yaml).
 
 After this step bech32, cardano-cli and cardano-node will be available in your workflow.
 You can use them in your scripts or directly execute them in your workflow steps.
