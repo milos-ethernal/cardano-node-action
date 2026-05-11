@@ -36524,13 +36524,39 @@ var core = __nccwpck_require__(2186);
 const exec = (0,external_util_.promisify)(external_child_process_.exec);
 
 const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node';
+const LINUX_AMD64_RELEASE_TAG = '10.5.4';
+
+const isTagGreaterThan = (tag, version) => {
+    const tagParts = tag.replace(/^v/, '').split('-')[0].split('.').map(Number);
+    const versionParts = version.split('.').map(Number);
+
+    for (let index = 0; index < versionParts.length; index++) {
+        const tagPart = tagParts[index] || 0;
+        const versionPart = versionParts[index] || 0;
+
+        if (Number.isNaN(tagPart)) {
+            return false;
+        }
+
+        if (tagPart > versionPart) {
+            return true;
+        }
+
+        if (tagPart < versionPart) {
+            return false;
+        }
+    }
+
+    return false;
+};
 
 const getPlatformReleaseUrl = async () => {   
     const tag = core.getInput('tag');
     const platform = process.platform;
     let file_name = '';
     if (platform === 'linux') {
-        file_name = `cardano-node-${tag}-linux.tar.gz`;
+        const archSuffix = isTagGreaterThan(tag, LINUX_AMD64_RELEASE_TAG) ? '-amd64' : '';
+        file_name = `cardano-node-${tag}-linux${archSuffix}.tar.gz`;
     }
     else if (platform === 'darwin') {
         file_name = `cardano-node-${tag}-macos.tar.gz`;
@@ -36591,16 +36617,31 @@ const unpackRelease = async () => {
 };
 
 const moveToRunnerBin = async () => {
-    const path = "/bin";
-    console.log(`GITHUB_WORKSPACE: ${path}`);
+    const runnerBinPath = "/bin";
+    console.log(`GITHUB_WORKSPACE: ${runnerBinPath}`);
     try {
         const newPrefix = core.getInput('prefix');
+        const sufix = core.getInput('sufix');
         const dir = './bins/' + newPrefix;
-        if (newPrefix != 'cardano') {
-            await exec(`bash -c 'cd ${dir} && for file in *cardano*; do [ -f "$file" ] && mv "$file" "\${file//cardano/${newPrefix}}"; done'`);
+        const files = (0,external_fs_.readdirSync)(dir);
+
+        for (const file of files) {
+            const filePath = external_path_.join(dir, file);
+
+            if (!(0,external_fs_.statSync)(filePath).isFile()) {
+                continue;
+            }
+
+            const prefixedFile = file.includes('cardano') && newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
+            const renamedFile = file.includes('cardano') && sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
+
+            if (renamedFile != file) {
+                (0,external_fs_.renameSync)(filePath, external_path_.join(dir, renamedFile));
+            }
+
+            await exec(`sudo mv "${external_path_.join(dir, renamedFile)}" "${external_path_.join(runnerBinPath, renamedFile)}"`);
         }
 
-        await exec(`sudo mv ${dir}/* ${path}`);
         rimraf.sync(dir);
     }
     catch (error) {

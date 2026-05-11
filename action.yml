@@ -12,6 +12,10 @@ inputs:
     description: 'prefix to rename cardano bins'
     required: false
     default: 'cardano'
+  sufix:
+    description: 'sufix to append to cardano bins'
+    required: false
+    default: ''
 runs:
   using: 'node20'
   main: 'dist/index.js'
