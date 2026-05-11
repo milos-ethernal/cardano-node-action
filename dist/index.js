@@ -36628,19 +36628,20 @@ const moveToRunnerBin = async () => {
         for (const file of files) {
             const filePath = external_path_.join(dir, file);
 
-            if (!(0,external_fs_.statSync)(filePath).isFile() || !file.includes('cardano')) {
+            if (!(0,external_fs_.statSync)(filePath).isFile()) {
                 continue;
             }
 
-            const prefixedFile = newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
-            const renamedFile = sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
+            const prefixedFile = file.includes('cardano') && newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
+            const renamedFile = file.includes('cardano') && sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
 
             if (renamedFile != file) {
                 (0,external_fs_.renameSync)(filePath, external_path_.join(dir, renamedFile));
             }
+
+            await exec(`sudo mv "${external_path_.join(dir, renamedFile)}" "${external_path_.join(runnerBinPath, renamedFile)}"`);
         }
 
-        await exec(`sudo mv ${dir}/* ${runnerBinPath}`);
         rimraf.sync(dir);
     }
     catch (error) {

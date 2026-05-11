@@ -113,19 +113,20 @@ export const moveToRunnerBin = async () => {
         for (const file of files) {
             const filePath = path.join(dir, file);
 
-            if (!statSync(filePath).isFile() || !file.includes('cardano')) {
+            if (!statSync(filePath).isFile()) {
                 continue;
             }
 
-            const prefixedFile = newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
-            const renamedFile = sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
+            const prefixedFile = file.includes('cardano') && newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
+            const renamedFile = file.includes('cardano') && sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
 
             if (renamedFile != file) {
                 renameSync(filePath, path.join(dir, renamedFile));
             }
+
+            await exec(`sudo mv "${path.join(dir, renamedFile)}" "${path.join(runnerBinPath, renamedFile)}"`);
         }
 
-        await exec(`sudo mv ${dir}/* ${runnerBinPath}`);
         rimraf.sync(dir);
     }
     catch (error) {
