@@ -9,13 +9,39 @@ import * as core from '@actions/core';
 const exec = promisify(execCallback);
 
 const BINS_BASE_URL = 'https://github.com/IntersectMBO/cardano-node';
+const LINUX_AMD64_RELEASE_TAG = '10.5.4';
+
+const isTagGreaterThan = (tag, version) => {
+    const tagParts = tag.replace(/^v/, '').split('-')[0].split('.').map(Number);
+    const versionParts = version.split('.').map(Number);
+
+    for (let index = 0; index < versionParts.length; index++) {
+        const tagPart = tagParts[index] || 0;
+        const versionPart = versionParts[index] || 0;
+
+        if (Number.isNaN(tagPart)) {
+            return false;
+        }
+
+        if (tagPart > versionPart) {
+            return true;
+        }
+
+        if (tagPart < versionPart) {
+            return false;
+        }
+    }
+
+    return false;
+};
 
 const getPlatformReleaseUrl = async () => {   
     const tag = core.getInput('tag');
     const platform = process.platform;
     let file_name = '';
     if (platform === 'linux') {
-        file_name = `cardano-node-${tag}-linux.tar.gz`;
+        const archSuffix = isTagGreaterThan(tag, LINUX_AMD64_RELEASE_TAG) ? '-amd64' : '';
+        file_name = `cardano-node-${tag}-linux${archSuffix}.tar.gz`;
     }
     else if (platform === 'darwin') {
         file_name = `cardano-node-${tag}-macos.tar.gz`;
