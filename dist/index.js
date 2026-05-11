@@ -36591,16 +36591,30 @@ const unpackRelease = async () => {
 };
 
 const moveToRunnerBin = async () => {
-    const path = "/bin";
-    console.log(`GITHUB_WORKSPACE: ${path}`);
+    const runnerBinPath = "/bin";
+    console.log(`GITHUB_WORKSPACE: ${runnerBinPath}`);
     try {
         const newPrefix = core.getInput('prefix');
+        const sufix = core.getInput('sufix');
         const dir = './bins/' + newPrefix;
-        if (newPrefix != 'cardano') {
-            await exec(`bash -c 'cd ${dir} && for file in *cardano*; do [ -f "$file" ] && mv "$file" "\${file//cardano/${newPrefix}}"; done'`);
+        const files = (0,external_fs_.readdirSync)(dir);
+
+        for (const file of files) {
+            const filePath = external_path_.join(dir, file);
+
+            if (!(0,external_fs_.statSync)(filePath).isFile() || !file.includes('cardano')) {
+                continue;
+            }
+
+            const prefixedFile = newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
+            const renamedFile = sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
+
+            if (renamedFile != file) {
+                (0,external_fs_.renameSync)(filePath, external_path_.join(dir, renamedFile));
+            }
         }
 
-        await exec(`sudo mv ${dir}/* ${path}`);
+        await exec(`sudo mv ${dir}/* ${runnerBinPath}`);
         rimraf.sync(dir);
     }
     catch (error) {

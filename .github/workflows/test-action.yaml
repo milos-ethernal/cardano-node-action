@@ -16,7 +16,7 @@ jobs:
         go-version: '1.20'
     
     - name: Install Cardano node
-      uses: milos-ethernal/cardano-node-action@26dcf8e4b11bef82122de0f64ef7ab3b4fad15a8
+      uses: ./
       with:
         tag: '10.1.4'
 
@@ -24,10 +24,21 @@ jobs:
       run: cardano-node --version
 
     - name: Install Cardano node with new prefix
-      uses: milos-ethernal/cardano-node-action@26dcf8e4b11bef82122de0f64ef7ab3b4fad15a8
+      uses: ./
       with:
         tag: '8.7.3'
         prefix: 'prime'
 
     - name: Test
       run: prime-node --version
+
+    - name: Install Cardano node with sufix
+      uses: ./
+      with:
+        tag: '11.0.1'
+        sufix: '11'
+
+    - name: Test sufix
+      run: |
+        cardano-node-11 --version
+        cardano-cli-11 --version

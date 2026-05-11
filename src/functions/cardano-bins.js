@@ -1,4 +1,4 @@
-import { readdirSync, statSync, rmdirSync, rmSync, mkdirSync, writeFileSync } from 'fs';
+import { readdirSync, statSync, rmdirSync, rmSync, mkdirSync, writeFileSync, renameSync } from 'fs';
 import { URL } from 'url';
 import * as path from 'path';
 import { exec as execCallback } from 'child_process';
@@ -76,16 +76,30 @@ export const unpackRelease = async () => {
 };
 
 export const moveToRunnerBin = async () => {
-    const path = "/bin";
-    console.log(`GITHUB_WORKSPACE: ${path}`);
+    const runnerBinPath = "/bin";
+    console.log(`GITHUB_WORKSPACE: ${runnerBinPath}`);
     try {
         const newPrefix = core.getInput('prefix');
+        const sufix = core.getInput('sufix');
         const dir = './bins/' + newPrefix;
-        if (newPrefix != 'cardano') {
-            await exec(`bash -c 'cd ${dir} && for file in *cardano*; do [ -f "$file" ] && mv "$file" "\${file//cardano/${newPrefix}}"; done'`);
+        const files = readdirSync(dir);
+
+        for (const file of files) {
+            const filePath = path.join(dir, file);
+
+            if (!statSync(filePath).isFile() || !file.includes('cardano')) {
+                continue;
+            }
+
+            const prefixedFile = newPrefix != 'cardano' ? file.replaceAll('cardano', newPrefix) : file;
+            const renamedFile = sufix ? `${prefixedFile}-${sufix}` : prefixedFile;
+
+            if (renamedFile != file) {
+                renameSync(filePath, path.join(dir, renamedFile));
+            }
         }
 
-        await exec(`sudo mv ${dir}/* ${path}`);
+        await exec(`sudo mv ${dir}/* ${runnerBinPath}`);
         rimraf.sync(dir);
     }
     catch (error) {
